@@ -15,9 +15,11 @@ private:
     void pose_callback(const turtlesim::Pose::ConstPtr &);
     void go_straight();
     void go_square();
+    void go_turn();
 
     int hz;
     int turn;
+    float ang;
 
     ros::Publisher pub_cmd_vel;
     ros::Subscriber sub_pose;

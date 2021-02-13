@@ -1,5 +1,5 @@
 #include "my_turtlesim_controller/my_turtlesim_controller.h"
-
+#include <stdio.h>
 MyTurtlesimController::MyTurtlesimController():private_nh("~")
 {
     private_nh.param("hz",hz,{10});
@@ -14,38 +14,48 @@ void MyTurtlesimController::pose_callback(const turtlesim::Pose::ConstPtr &msg)
 
 }
 
+void MyTurtlesimController::go_turn()
+{
+    ROS_INFO_STREAM(current_pose.theta);
+    geometry_msgs::Twist cmd_vel;
+    cmd_vel.angular.z = 1;
+    pub_cmd_vel.publish(cmd_vel);
 
+
+}
 void MyTurtlesimController::go_straight()
 {
-    ROS_INFO_STREAM(current_pose);
+    ROS_INFO_STREAM(current_pose.theta);
     geometry_msgs::Twist cmd_vel;
-    cmd_vel.linear.x = 3;
+    if(turn>=40)
+    {
+        while(true)
+        {
+            if(current_pose.theta/0.096 >= 15 && current_pose.theta/0.096 <= 17)
+            {
+                break;
+            }
+            go_turn();
+        }
+        turn = 0;
+    }
+    else
+    {
+        cmd_vel.linear.x = 1;
+    }
+    turn += cmd_vel.linear.x;
     pub_cmd_vel.publish(cmd_vel);
 }
-
-
-
-void MyTurtlesimController::go_square()
-{
-    ROS_INFO_STREAM(current_pose);
-    geometry_msgs::Twist cmd_vel;
-    cmd_vel.linear.x = 1;
-    if(turn == 3)
-    {
-        cmd_vel.angular.z = M_PI/2;
-    }
-    turn += 1;
-    pub_cmd_vel.publish(cmd_vel);
- }
 
 
 
 void MyTurtlesimController::process()
 {
     ros::Rate loop_rate(hz);
+
     while(ros::ok())
     {
-        go_square();
+        go_straight();
         ros::spinOnce();
         loop_rate.sleep();
     }
