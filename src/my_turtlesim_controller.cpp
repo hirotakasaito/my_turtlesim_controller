@@ -18,32 +18,45 @@ void MyTurtlesimController::go_turn()
 {
     ROS_INFO_STREAM(current_pose.theta);
     geometry_msgs::Twist cmd_vel;
-    cmd_vel.angular.z = 1;
+    for(int i = 0;i<16;i++)
+    {
+        cmd_vel.angular.z = 1;
+    }
     pub_cmd_vel.publish(cmd_vel);
 
 
 }
+
 void MyTurtlesimController::go_straight()
 {
-    ROS_INFO_STREAM(current_pose.theta);
+    ROS_INFO_STREAM(current_pose);
+    ROS_INFO_STREAM(ang);
+    ROS_INFO_STREAM(turn_count);
     geometry_msgs::Twist cmd_vel;
-    if(turn>=40)
+
+    if(turn >= 40)
     {
-        while(true)
+        ang = turn_ang[turn_count]*M_PI/2 - current_pose.theta;
+        if(ang <= 0.01)
         {
-            if(current_pose.theta/0.096 >= 15 && current_pose.theta/0.096 <= 17)
+            turn = 0;
+            ang = 0;
+            turn_count++;
+            if(turn_count == 4)
             {
-                break;
+                 turn_count = 0;
             }
-            go_turn();
         }
-        turn = 0;
+        else
+        {
+            cmd_vel.angular.z = 0.1;
+        }
     }
     else
     {
         cmd_vel.linear.x = 1;
+        turn +=1;
     }
-    turn += cmd_vel.linear.x;
     pub_cmd_vel.publish(cmd_vel);
 }
 

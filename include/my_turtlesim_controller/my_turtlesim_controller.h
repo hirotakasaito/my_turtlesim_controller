@@ -18,8 +18,11 @@ private:
     void go_turn();
 
     int hz;
-    int turn;
-    float ang;
+    int turn = 0;
+    int turn_ang[4]={ 1,2,-1,0 };
+    int turn_count=0;
+    float ang = 0;
+
 
     ros::Publisher pub_cmd_vel;
     ros::Subscriber sub_pose;
