@@ -14,38 +14,40 @@ void MyTurtlesimController::pose_callback(const turtlesim::Pose::ConstPtr &msg)
 
 }
 
-void MyTurtlesimController::go_turn()
-{
-    ROS_INFO_STREAM(current_pose.theta);
-    geometry_msgs::Twist cmd_vel;
-    for(int i = 0;i<16;i++)
-    {
-        cmd_vel.angular.z = 1;
-    }
-    pub_cmd_vel.publish(cmd_vel);
-
-
-}
 
 void MyTurtlesimController::go_straight()
 {
-    ROS_INFO_STREAM(current_pose);
-    ROS_INFO_STREAM(ang);
-    ROS_INFO_STREAM(turn_count);
+    ROS_INFO_STREAM(distance);
     geometry_msgs::Twist cmd_vel;
 
-    if(turn >= 40)
+    if( distance >= goal)
     {
-        ang = turn_ang[turn_count]*M_PI/2 - current_pose.theta;
+        switch(turn_count)
+        {
+            case 1:
+             ang = fabs(current_pose.theta) - 0.66*M_PI;
+             break;
+            case 2:
+             ang = fabs(current_pose.theta);
+             break;
+            case 0:
+             ang = 0.67*M_PI - fabs(current_pose.theta);
+             break;
+            default:
+             break;
+        }
         if(ang <= 0.01)
         {
             turn = 0;
             ang = 0;
             turn_count++;
-            if(turn_count == 4)
+            if(turn_count == 3)
             {
                  turn_count = 0;
             }
+            init_pose_x = current_pose.x;
+            init_pose_y = current_pose.y;
+            distance = 0.0;
         }
         else
         {
@@ -54,8 +56,13 @@ void MyTurtlesimController::go_straight()
     }
     else
     {
-        cmd_vel.linear.x = 1;
-        turn +=1;
+        cmd_vel.linear.x = 1.0;
+        if(init_pose_x == 0.0)
+        {
+            init_pose_x = current_pose.x;
+            init_pose_y = current_pose.y;
+        }
+        distance = sqrt((current_pose.x - init_pose_x) * (current_pose.x - init_pose_x) + (current_pose.y - init_pose_y) * (current_pose.y - init_pose_y));
     }
     pub_cmd_vel.publish(cmd_vel);
 }

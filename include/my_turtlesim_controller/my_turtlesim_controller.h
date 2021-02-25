@@ -19,10 +19,12 @@ private:
 
     int hz;
     int turn = 0;
-    int turn_ang[4]={ 1,2,-1,0 };
     int turn_count=0;
+    float goal = 3.0;
+    float distance = 0;
     float ang = 0;
-
+    float init_pose_x = 0.0;
+    float init_pose_y = 0.0;
 
     ros::Publisher pub_cmd_vel;
     ros::Subscriber sub_pose;
